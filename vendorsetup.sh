@@ -1,0 +1,1 @@
+add_lunch_combo cm_s4508-userdebug
