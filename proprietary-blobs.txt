@@ -1,4 +1,8 @@
-app/
+app/com.qualcomm.location/com.qualcomm.location.apk
+app/com.qualcomm.services.location/com.qualcomm.services.location.apk
+app/qcrilmsgtunnel/qcrilmsgtunnel.apk
+app/shutdownlistener/shutdownlistener.apk
+app/TimeService/TimeService.apk
 bin/adsprpcd
 bin/btnvtool
 bin/charger_monitor
@@ -54,7 +58,6 @@ etc/quipc.conf
 etc/sap.conf
 etc/xtra_root_cert.pem
 etc/xtwifi.conf
-framework/Android.mk
 framework/com.qualcomm.location.vzw_library.jar
 framework/qcnvitems.jar
 framework/qcrilhook.jar
