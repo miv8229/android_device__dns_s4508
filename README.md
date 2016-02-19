@@ -1,5 +1,7 @@
 CyanogenMod 12.1 device configuration for DNS S4508.
 
+Thanks to the user KonstaT for creation device tree for ZTE Kis3 - it was taken as a tree basis for my device
+
 How to build:
 -------------
 
