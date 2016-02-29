@@ -30,18 +30,24 @@
 on early-init
     mkdir /firmware 0771 system system
     symlink /data/tombstones /tombstones
-    write /sys/kernel/mm/ksm/pages_to_scan 100
-    write /sys/kernel/mm/ksm/sleep_millisecs 500
-    write /sys/kernel/mm/ksm/run 1
 
 on fs
     mount_all fstab.qcom
+    # zRAM
     swapon_all fstab.qcom
 
-    restorecon_recursive /persist
-    mkdir /persist/data 0700 system system
-    mkdir /persist/data/sfs 0700 system system
-    mkdir /persist/data/tz 0700 system system
+    # Keeping following partitions outside fstab file. As user may not have
+    # these partition flashed on the device. Failure to mount any partition in fstab file
+    # results in failure to launch late-start class.
+
+    #wait /dev/block/platform/msm_sdcc.1/by-name/cache
+    #mount ext4 /dev/block/platform/msm_sdcc.1/by-name/cache /cache nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.1/by-name/persist
+    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persist /persist nosuid nodev barrier=1
+
+    wait /dev/block/platform/msm_sdcc.1/by-name/modem
+    mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware ro shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0
 
 on post-fs-data
     mkdir /data/tombstones 0771 system system
@@ -51,15 +57,12 @@ on boot
     write /proc/sys/vm/page-cluster 0
     write /proc/sys/vm/swappiness 100
 
-    #[ECID:000000] ZTEBSP wanghaifei 20130905 start, for sensor init
     chmod 664 /dev/light_sensor
     chown system root /dev/light_sensor
 
     chown system root /sys/class/i2c-adapter/i2c-0/0-0019/enable_device
     chown system root /sys/class/i2c-adapter/i2c-0/0-0019/pollrate_ms
-    #[ECID:000000] ZTEBSP wanghaifei 20130905 end, for sensor init
 
-    #//[ECID:0000]ZTE_BSP maxiaoping 20130821 modify leds&vibrator feature for 8x26,start.
     chown system system /sys/class/leds/lcd-backlight/brightness
     chown system system /sys/class/leds/button-backlight/brightness
     chown system system /sys/class/leds/red/brightness
@@ -67,10 +70,12 @@ on boot
     chown system system /sys/class/leds/red/blink
     chown system system /sys/class/leds/green/blink
     chown system system /sys/class/timed_output/vibrator/enable
-    #//[ECID:0000]ZTE_BSP maxiaoping 20130821 modify leds&vibrator feature for 8x26,end.
 
     # vibrator intensity
     chown system system /sys/devices/virtual/timed_output/vibrator/vtg_level
+
+    # usb charging
+    chown system system /sys/class/power_supply/battery/charging_enabled
 
     # display color calibration
     chown system system /sys/devices/virtual/graphics/fb0/kcal
@@ -78,20 +83,12 @@ on boot
     # key disabler
     chown system system /proc/touchscreen/keypad_enable
 
-# Allow usb charging to be disabled persistently
-on property:persist.usb.chgdisabled=1
-    write /sys/class/power_supply/battery/charging_enabled 0
-
-on property:persist.usb.chgdisabled=0
-    write /sys/class/power_supply/battery/charging_enabled 1
-
 service time_daemon /system/bin/time_daemon
     class late_start
     user root
     group root
 
 service mpdecision /system/bin/mpdecision --avg_comp
-    class main
     user root
     disabled
 
@@ -104,15 +101,27 @@ service gsiff_daemon /system/bin/gsiff_daemon
 service thermal-engine /system/bin/thermal-engine
     class main
     user root
-    socket thermal-send-client stream 0666 system system
-    socket thermal-recv-client stream 0660 system system
-    socket thermal-recv-passive-client stream 0666 system system
     group root
 
 service qseecomd /system/bin/qseecomd
     class late_start
     user root
     group root
+
+service qrngd /system/bin/qrngd -f
+    class main
+    user root
+    group root
+
+service qrngp /system/bin/qrngp
+    class main
+    user root
+    group root
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1
+    start qrngp
 
 # start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
@@ -126,12 +135,12 @@ service adsprpcd /system/bin/adsprpcd
     group media
 
 service wcnss-service /system/bin/wcnss_service
-    class main
+    class late_start
     user system
-    group system wifi radio
+    group system wifi
     oneshot
 
-service ztebasebandinit /system/bin/sh /system/etc/init.zte.baseband.sh
+service basebandinit /system/bin/sh /system/etc/init.baseband.sh
     class late_start
     user root
     oneshot
