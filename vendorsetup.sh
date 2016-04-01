@@ -1,1 +1,1 @@
-add_lunch_combo cm_s4508-userdebug
+add_lunch_combo cm_I32_DNS-userdebug

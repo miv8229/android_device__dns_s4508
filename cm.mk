@@ -6,11 +6,11 @@ TARGET_SCREEN_HEIGHT := 960
 $(call inherit-product, vendor/cm/config/common_full_phone.mk)
 
 # Inherit device configuration
-$(call inherit-product, device/dns/s4508/s4508.mk)
+$(call inherit-product, device/jsr/I32_DNS/I32_DNS.mk)
 
 # Device identifier. This must come after all inclusions
-PRODUCT_DEVICE := s4508
-PRODUCT_NAME := cm_s4508
+PRODUCT_DEVICE := I32_DNS
+PRODUCT_NAME := cm_I32_DNS
 PRODUCT_BRAND := DNS
 PRODUCT_MODEL := s4508
 PRODUCT_MANUFACTURER := DNS
