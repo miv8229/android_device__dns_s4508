@@ -103,8 +103,17 @@ config_bt ()
         setprop ro.qualcomm.bluetooth.map true
         setprop ro.qualcomm.bluetooth.nap true
         setprop ro.bluetooth.sap true
-        setprop ro.bluetooth.dun false
+        case $target in
+          "apq8084")
+              setprop ro.bluetooth.dun true
+              logi "Enabling BT-DUN for APQ8084"
+              ;;
+          *)
+              setprop ro.bluetooth.dun false
+              ;;
+        esac
         ;;
+    # ZTE_MODIFY cuiningning for bluetooth SIG certification disable MAP,SAP,DUN 20140409
     "msm")
         setprop ro.qualcomm.bluetooth.opp true
         setprop ro.qualcomm.bluetooth.hfp true
@@ -135,8 +144,10 @@ config_bt ()
         setprop ro.bluetooth.dun false
         ;;
   esac
+  # ZTE_MODIFY end 20140409
 
   #Enable Bluetooth Profiles specific to target Dynamically
+  # ZTE_MODIFY cuiningning for bluetooth SIG certification change hfp version 1.5 20140409 
   case $target in
     "msm8960")
        if [ "$btsoc" != "ath3k" ] && [ "$soc_hwid" != "130" ]
@@ -159,7 +170,6 @@ config_bt ()
        elif [ "$btsoc" = "rome" ]
        then
            setprop ro.bluetooth.hfp.ver 1.6
-           setprop ro.bluetooth.dun false
        fi
        ;;
     *)
@@ -169,6 +179,7 @@ config_bt ()
 if [ -f /system/etc/bluetooth/stack.conf ]; then
 stack=`cat /system/etc/bluetooth/stack.conf`
 fi
+  # ZTE_MODIFY end 20140409
 
 case "$stack" in
     "bluez")

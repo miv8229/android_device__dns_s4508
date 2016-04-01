@@ -7,11 +7,11 @@ How to build:
 
 Initialize repo:
 
-    repo init -u git://github.com/CyanogenMod/android.git -b cm-11.0
-    curl --create-dirs -L -o .repo/local_manifests/manifest_dns_s4508.xml -O -L https://raw.githubusercontent.com/miv8229/android_local_manifest/cm-11.0/manifest_dns_s4508.xml
+    repo init -u git://github.com/CyanogenMod/android.git -b cm-13.0
+    curl --create-dirs -L -o .repo/local_manifests/manifest_dns_s4508.xml -O -L https://raw.githubusercontent.com/miv8229/android_local_manifest/cm-13.0/manifest_dns_s4508.xml
     repo sync
 
 Compile:
 
     . build/envsetup.sh
-    brunch s4508
+    brunch I32_DNS

@@ -331,7 +331,7 @@ case "$target" in
         chmod -h 664 /sys/devices/system/cpu/cpu1/online
         chmod -h 664 /sys/devices/system/cpu/cpu2/online
         chmod -h 664 /sys/devices/system/cpu/cpu3/online
-        echo 1 > /dev/cpuctl/apps/cpu.notify_on_migrate
+        echo 1 > /dev/cpuctl/cpu.notify_on_migrate
     ;;
 esac
 
@@ -408,6 +408,7 @@ case "$target" in
         echo 300000 > /sys/devices/system/cpu/cpufreq/ondemand/sync_freq
         echo 80 > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold_any_cpu_load
         echo 787200 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+        setprop ro.qualcomm.perf.min_freq 7
         echo 1 > /sys/kernel/mm/ksm/deferred_timer
         chown -h system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
         chown -h system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
@@ -580,9 +581,9 @@ if [ -f /data/prebuilt/AdrenoTest.apk ]; then
 fi
 
 # Install SWE_Browser.apk if not already installed
-if [ -f /data/prebuilt/SWE_Browser.apk ]; then
-    if [ ! -d /data/data/org.codeaurora.swe.browser ]; then
-        pm install /data/prebuilt/SWE_Browser.apk
+if [ -f /data/prebuilt/SWE_AndroidBrowser.apk ]; then
+    if [ ! -d /data/data/com.android.swe.browser ]; then
+        pm install /data/prebuilt/SWE_AndroidBrowser.apk
     fi
 fi
 
@@ -595,4 +596,24 @@ case "$target" in
      ;;
 esac
 
+case "$target" in
+    "msm8226" | "msm8974" | "msm8610" | "apq8084" | "mpq8092" | "msm8610")
+        # Let kernel know our image version/variant/crm_version
+        image_version="10:"
+        image_version+=`getprop ro.build.id`
+        image_version+=":"
+        image_version+=`getprop ro.build.version.incremental`
+        image_variant=`getprop ro.product.name`
+        image_variant+="-"
+        image_variant+=`getprop ro.build.type`
+        oem_version=`getprop ro.build.version.codename`
+        echo 10 > /sys/devices/soc0/select_image
+        echo $image_version > /sys/devices/soc0/image_version
+        echo $image_variant > /sys/devices/soc0/image_variant
+        echo $oem_version > /sys/devices/soc0/image_crm_version
+        ;;
+esac
+
+# ZTE_MODIFY ssr start
 echo related > /sys/bus/msm_subsys/devices/subsys2/restart_level
+# ZTE_MODIFY ssr end
